@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+    <h1>🚆 SafeRail AI Dashboard</h1>
+
+    <h3>Emergency Features</h3>
+
+    <button onclick="alert('Emergency Alert Sent!')">
+        🚨 Send Emergency Alert
+    </button>
+
+    <br><br>
+
+    <button onclick="alert('Camera Module Coming Soon!')">
+        📷 Open Camera
+    </button>
+    
+    <br><br>
+
+    <button onclick="alert('🆘 SOS Message Sent!')">
+        🆘 SOS Button
+    </button>
+
+    <br><br>
+
+     <button onclick="window.location.href='/report'">
+        📝 Incident Reports
+    </button>
+</body>
+</html>
