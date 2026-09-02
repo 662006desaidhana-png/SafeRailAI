@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SafeRailAI - Emergency Alert</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fc;
+            color: #222;
+        }
+
+        .header {
+            background: #003b73;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 6px 0 0;
+            opacity: .9;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 950px;
+            margin: 35px auto;
+        }
+
+        .alert-status {
+            background: #c62828;
+            color: white;
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(198,40,40,.25);
+        }
+
+        .alert-status h2 {
+            margin: 0 0 8px;
+            color: white;
+            font-size: 26px;
+        }
+
+        .alert-status p {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            margin-top: 20px;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.10);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #003b73;
+        }
+
+        .status-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            flex: 1;
+            min-width: 180px;
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status-item strong {
+            display: block;
+            margin-top: 7px;
+        }
+
+        .active {
+            color: #16803c;
+            font-weight: bold;
+        }
+
+        .contacts {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .contact-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 3px 12px rgba(0,0,0,.10);
+        }
+
+        .contact-card h3 {
+            margin-top: 0;
+            color: #003b73;
+        }
+
+        .phone-number {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 11px 18px;
+            margin: 5px 3px;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .call-btn {
+            background: #d32f2f;
+        }
+
+        .call-btn:hover {
+            background: #a51f1f;
+        }
+
+        .sms-btn {
+            background: #1976d2;
+        }
+
+        .sms-btn:hover {
+            background: #125aa0;
+        }
+
+        .incident-info {
+            background: #fff8e1;
+            border-left: 5px solid #ffb300;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .incident-row {
+            margin: 10px 0;
+            font-size: 17px;
+        }
+
+        .incident-image {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: 3px solid #ddd;
+        }
+
+        .message-card {
+            background: #fff8e1;
+            border-left: 5px solid #ffb300;
+        }
+
+        .time-card {
+            text-align: center;
+        }
+
+        .actual-time {
+            color: #003b73;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #555;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #333;
+        }
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                width: 94%;
+            }
+
+            .status-row {
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="header">
+
+    <h1>🚆 SafeRailAI</h1>
+
+    <p>
+        Emergency Alert & Response Center
+    </p>
+
+</div>
+
+
+<div class="container">
+
+
+    <!-- EMERGENCY -->
+
+    <div class="alert-status">
+
+        <h2>
+            🚨 EMERGENCY ALERT
+        </h2>
+
+        <p>
+            Suspicious activity has been detected
+            by the AI monitoring system.
+        </p>
+
+    </div>
+
+
+    <!-- SYSTEM STATUS -->
+
+    <div class="card">
+
+        <h3>
+            📊 System Status
+        </h3>
+
+        <div class="status-row">
+
+            <div class="status-item">
+
+                📷
+
+                <strong>
+                    Camera
+                </strong>
+
+                <span class="active">
+                    ● Active
+                </span>
+
+            </div>
+
+
+            <div class="status-item">
+
+                🤖
+
+                <strong>
+                    AI Monitoring
+                </strong>
+
+                <span class="active">
+                    ● Active
+                </span>
+
+            </div>
+
+
+            <div class="status-item">
+
+                🔔
+
+                <strong>
+                    Alert System
+                </strong>
+
+                <span class="active">
+                    ● Ready
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LATEST INCIDENT -->
+
+    <div class="card incident-info">
+
+        <h3>
+            🚨 Latest AI Detection
+        </h3>
+
+
+        {% if latest_date and latest_time %}
+
+            <div class="incident-row">
+                📅 <strong>Detection Date:</strong>
+                {{ latest_date }}
+            </div>
+
+            <div class="incident-row">
+                ⏰ <strong>Detection Time:</strong>
+                {{ latest_time }}
+            </div>
+
+
+            {% if latest_object %}
+
+            <div class="incident-row">
+                🤖 <strong>Detected Object:</strong>
+                {{ latest_object|capitalize }}
+            </div>
+
+            {% endif %}
+
+
+            {% if latest_image %}
+
+            <img
+                src="{{ url_for('incident_image', filename=latest_image) }}"
+                class="incident-image"
+                alt="Latest Incident">
+
+            {% endif %}
+
+
+        {% else %}
+
+            <p>
+                ℹ️ No incident has been recorded yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- PARENT CONTACTS -->
+
+    <div class="card">
+
+        <h3>
+            👨‍👩‍👧 Emergency Parent Contacts
+        </h3>
+
+        <div class="contacts">
+
+
+            <!-- PARENT 1 -->
+
+            <div class="contact-card">
+
+                <h3>
+                    👨 Parent 1
+                </h3>
+
+                {% if parent1_phone %}
+
+                    <p>
+                        Registered emergency contact
+                    </p>
+
+                    <div class="phone-number">
+                        📱 {{ parent1_phone }}
+                    </div>
+
+                    <a
+                        class="btn call-btn"
+                        href="tel:{{ parent1_phone }}"
+                    >
+                        📞 Call Parent 1
+                    </a>
+
+                    <a
+                        class="btn sms-btn"
+                        href="sms:{{ parent1_phone }}?body=SafeRailAI%20Emergency%20Alert%3A%20Suspicious%20activity%20has%20been%20detected."
+                    >
+                        📩 SMS Parent 1
+                    </a>
+
+                {% else %}
+
+                    <p>
+                        No phone number registered.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- PARENT 2 -->
+
+            <div class="contact-card">
+
+                <h3>
+                    👩 Parent 2
+                </h3>
+
+                {% if parent2_phone %}
+
+                    <p>
+                        Registered emergency contact
+                    </p>
+
+                    <div class="phone-number">
+                        📱 {{ parent2_phone }}
+                    </div>
+
+                    <a
+                        class="btn call-btn"
+                        href="tel:{{ parent2_phone }}"
+                    >
+                        📞 Call Parent 2
+                    </a>
+
+                    <a
+                        class="btn sms-btn"
+                        href="sms:{{ parent2_phone }}?body=SafeRailAI%20Emergency%20Alert%3A%20Suspicious%20activity%20has%20been%20detected."
+                    >
+                        📩 SMS Parent 2
+                    </a>
+
+                {% else %}
+
+                    <p>
+                        No phone number registered.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- POLICE -->
+
+    <div class="contact-card"
+         style="margin-top:20px;">
+
+        <h3>
+            👮 Police Emergency
+        </h3>
+
+        <p>
+            For immediate emergency assistance,
+            contact the local emergency service.
+        </p>
+
+        <a
+            class="btn call-btn"
+            href="tel:100"
+        >
+            📞 Call Police
+        </a>
+
+    </div>
+
+
+    <!-- RAILWAY SECURITY -->
+
+    <div class="contact-card"
+         style="margin-top:20px;">
+
+        <h3>
+            🚆 Railway Security
+        </h3>
+
+        <p>
+            Prepare an emergency notification
+            for railway security personnel.
+        </p>
+
+        <a
+            class="btn sms-btn"
+            href="sms:?body=SafeRailAI%20Emergency%20Alert%3A%20Suspicious%20activity%20detected.%20Immediate%20attention%20required."
+        >
+            📩 Send Alert
+        </a>
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    <div class="card message-card">
+
+        <h3>
+            📨 Emergency Message
+        </h3>
+
+        <p>
+
+            SafeRailAI has detected suspicious
+            activity through the AI monitoring system.
+
+            <br><br>
+
+            Please verify the situation and take
+            appropriate safety action.
+
+        </p>
+
+    </div>
+
+
+    <!-- ACTUAL INCIDENT TIME -->
+
+    <div class="card time-card">
+
+        {% if latest_date and latest_time %}
+
+            🚨 Latest Incident Recorded At:
+
+            <div class="actual-time">
+
+                {{ latest_date }}
+                &nbsp; | &nbsp;
+                {{ latest_time }}
+
+            </div>
+
+        {% else %}
+
+            ℹ️ No incident time available.
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- BACK -->
+
+    <div class="back">
+
+        <a
+            href="{{ url_for('dashboard') }}"
+            class="back-btn"
+        >
+            ⬅ Back to Dashboard
+        </a>
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

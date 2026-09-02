@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SafeRailAI - Settings</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f7fc;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+        }
+
+        /* HEADER */
+
+        .header {
+            background: linear-gradient(135deg, #003b73, #0d47a1);
+            color: white;
+            padding: 22px 5%;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-content {
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        /* MAIN */
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: 30px auto;
+        }
+
+        /* PAGE TITLE */
+
+        .page-title {
+            margin-bottom: 22px;
+        }
+
+        .page-title h2 {
+            margin: 0;
+            color: #003b73;
+            font-size: 26px;
+        }
+
+        .page-title p {
+            margin: 6px 0 0;
+            color: #667085;
+        }
+
+        /* SYSTEM HEALTH */
+
+        .health-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #16803c;
+        }
+
+        .health-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .health-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .health-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            background: #e8f5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+        }
+
+        .health-title h3 {
+            margin: 0;
+            color: #003b73;
+        }
+
+        .health-title p {
+            margin: 4px 0 0;
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .online {
+            background: #e8f5e9;
+            color: #16803c;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* GRID */
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        /* CARD */
+
+        .setting-card {
+            background: white;
+            padding: 22px;
+            border-radius: 15px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+            transition: 0.2s ease;
+        }
+
+        .setting-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #eaf2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .setting-card h3 {
+            margin: 0 0 8px;
+            color: #003b73;
+            font-size: 19px;
+        }
+
+        .description {
+            color: #667085;
+            line-height: 1.5;
+            font-size: 14px;
+            min-height: 63px;
+        }
+
+        /* STATUS */
+
+        .status {
+            display: inline-block;
+            padding: 6px 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .active {
+            background: #e8f5e9;
+            color: #16803c;
+        }
+
+        .enabled {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .connected {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        /* INFORMATION */
+
+        .information {
+            margin-top: 24px;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .information h2 {
+            margin: 0 0 18px;
+            color: #003b73;
+            font-size: 22px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #edf0f4;
+            gap: 20px;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #344054;
+        }
+
+        .info-value {
+            color: #667085;
+            text-align: right;
+        }
+
+        /* SECURITY */
+
+        .security-box {
+            margin-top: 24px;
+            background: #eef6ff;
+            border: 1px solid #cfe3ff;
+            border-radius: 14px;
+            padding: 20px;
+        }
+
+        .security-box h3 {
+            margin: 0 0 8px;
+            color: #003b73;
+        }
+
+        .security-box p {
+            margin: 0;
+            color: #526071;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* BUTTONS */
+
+        .actions {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 22px;
+            margin: 5px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s ease;
+        }
+
+        .dashboard-btn {
+            background: #1976d2;
+            color: white;
+        }
+
+        .dashboard-btn:hover {
+            background: #0d47a1;
+        }
+
+        .logout-btn {
+            background: #eef1f5;
+            color: #344054;
+        }
+
+        .logout-btn:hover {
+            background: #dfe4ea;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            color: #7a8491;
+            font-size: 13px;
+            padding-bottom: 25px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .settings-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .container {
+                width: 94%;
+                margin-top: 22px;
+            }
+
+            .health-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .info-value {
+                text-align: left;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="header-content">
+
+        <h1>⚙ SafeRailAI Settings</h1>
+
+        <p>
+            System Configuration, Health & Monitoring Information
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- MAIN -->
+
+<div class="container">
+
+
+    <!-- PAGE TITLE -->
+
+    <div class="page-title">
+
+        <h2>System Settings</h2>
+
+        <p>
+            Review the current SafeRailAI monitoring configuration.
+        </p>
+
+    </div>
+
+
+    <!-- SYSTEM HEALTH -->
+
+    <div class="health-card">
+
+        <div class="health-top">
+
+            <div class="health-title">
+
+                <div class="health-icon">
+                    🛡️
+                </div>
+
+                <div>
+
+                    <h3>SafeRailAI System Health</h3>
+
+                    <p>
+                        Core monitoring components are configured
+                        and ready for operation.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <span class="online">
+                ● SYSTEM READY
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- SETTINGS GRID -->
+
+    <div class="settings-grid">
+
+
+        <!-- AI MONITORING -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                🤖
+            </div>
+
+            <h3>AI Monitoring</h3>
+
+            <span class="status active">
+                ● ACTIVE
+            </span>
+
+            <p class="description">
+                YOLO-based AI monitoring is configured to
+                analyze the live camera feed.
+            </p>
+
+        </div>
+
+
+        <!-- CAMERA -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                📷
+            </div>
+
+            <h3>Camera System</h3>
+
+            <span class="status connected">
+                ● CONNECTED
+            </span>
+
+            <p class="description">
+                The system is configured for live camera
+                monitoring and video processing.
+            </p>
+
+        </div>
+
+
+        <!-- ALERT -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                🚨
+            </div>
+
+            <h3>Alert System</h3>
+
+            <span class="status enabled">
+                ● ENABLED
+            </span>
+
+            <p class="description">
+                Visual warnings are generated when the
+                configured detection condition is triggered.
+            </p>
+
+        </div>
+
+
+        <!-- ALARM -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                🔊
+            </div>
+
+            <h3>Local Alarm</h3>
+
+            <span class="status enabled">
+                ● ENABLED
+            </span>
+
+            <p class="description">
+                A local audio alarm is configured to activate
+                during a detected alert condition.
+            </p>
+
+        </div>
+
+
+        <!-- DATABASE -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                🗄️
+            </div>
+
+            <h3>Incident Database</h3>
+
+            <span class="status connected">
+                ● CONNECTED
+            </span>
+
+            <p class="description">
+                Incident records and captured detection images
+                are stored for later review.
+            </p>
+
+        </div>
+
+
+        <!-- REPORTING -->
+
+        <div class="setting-card">
+
+            <div class="card-icon">
+                📋
+            </div>
+
+            <h3>Reporting System</h3>
+
+            <span class="status active">
+                ● READY
+            </span>
+
+            <p class="description">
+                Recorded incidents can be reviewed through
+                the incident report section.
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- SYSTEM INFORMATION -->
+
+    <div class="information">
+
+        <h2>ℹ️ System Information</h2>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Platform
+            </span>
+
+            <span class="info-value">
+                SafeRailAI
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                AI Technology
+            </span>
+
+            <span class="info-value">
+                YOLO Object Detection
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Monitoring Mode
+            </span>
+
+            <span class="info-value">
+                AI-Assisted Live Monitoring
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Camera Mode
+            </span>
+
+            <span class="info-value">
+                Live Video Feed
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Alert Mode
+            </span>
+
+            <span class="info-value">
+                Visual Warning + Local Alarm
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Storage
+            </span>
+
+            <span class="info-value">
+                SQLite Database + Incident Images
+            </span>
+
+        </div>
+
+
+        <div class="info-row">
+
+            <span class="info-label">
+                Access
+            </span>
+
+            <span class="info-value">
+                Authenticated Users
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- SECURITY -->
+
+    <div class="security-box">
+
+        <h3>🔐 Security Information</h3>
+
+        <p>
+            SafeRailAI uses authenticated user sessions to protect
+            the dashboard, camera feed, reports, alert center and
+            system settings. User passwords are stored using
+            password hashing rather than plain text.
+        </p>
+
+    </div>
+
+
+    <!-- ACTIONS -->
+
+    <div class="actions">
+
+        <a href="{{ url_for('dashboard') }}"
+           class="btn dashboard-btn">
+            ⬅ Back to Dashboard
+        </a>
+
+        <a href="{{ url_for('logout') }}"
+           class="btn logout-btn">
+            🚪 Logout
+        </a>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="footer">
+
+        SafeRailAI • AI-Assisted Railway Safety Monitoring System
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

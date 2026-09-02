@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SafeRailAI - Register</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #003b73,
+                    #1976d2
+                );
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .register-wrapper {
+            width: 92%;
+            max-width: 470px;
+        }
+
+        .register-card {
+            background: white;
+
+            padding: 38px 35px;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(0, 0, 0, 0.25);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 50px;
+        }
+
+        h1 {
+            text-align: center;
+
+            color: #003b73;
+
+            margin: 5px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+
+            color: #777;
+
+            font-size: 14px;
+
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            text-align: center;
+
+            color: #333;
+
+            margin-bottom: 22px;
+        }
+
+        .error-message {
+            background: #ffebee;
+
+            color: #c62828;
+
+            border: 1px solid #ef9a9a;
+
+            padding: 12px;
+
+            border-radius: 8px;
+
+            margin-bottom: 18px;
+
+            font-weight: bold;
+        }
+
+        .section-title {
+            color: #003b73;
+
+            font-size: 15px;
+
+            font-weight: bold;
+
+            margin:
+                22px 0
+                12px;
+
+            padding-bottom: 7px;
+
+            border-bottom:
+                1px solid #e0e0e0;
+        }
+
+        .input-group {
+            margin-bottom: 17px;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-weight: bold;
+
+            color: #444;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 13px;
+
+            border:
+                1px solid #ccc;
+
+            border-radius: 9px;
+
+            font-size: 16px;
+
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #1976d2;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(25,118,210,0.12);
+        }
+
+        .phone-help {
+            font-size: 12px;
+
+            color: #777;
+
+            margin-top: 5px;
+        }
+
+        .register-btn {
+            width: 100%;
+
+            padding: 13px;
+
+            border: none;
+
+            border-radius: 9px;
+
+            background: #1976d2;
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-top: 8px;
+        }
+
+        .register-btn:hover {
+            background: #0d47a1;
+        }
+
+        .login-link {
+            text-align: center;
+
+            margin-top: 22px;
+
+            color: #555;
+        }
+
+        .login-link a {
+            color: #1976d2;
+
+            font-weight: bold;
+
+            text-decoration: none;
+        }
+
+        .security {
+            margin-top: 20px;
+
+            padding: 11px;
+
+            background: #f1f8ff;
+
+            border-radius: 8px;
+
+            color: #555;
+
+            font-size: 13px;
+
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+
+            .register-card {
+                padding:
+                    30px 22px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="register-wrapper">
+
+    <div class="register-card">
+
+        <div class="logo">
+            🚆
+        </div>
+
+        <h1>
+            SafeRailAI
+        </h1>
+
+        <p class="subtitle">
+            Create your railway safety monitoring account
+        </p>
+
+        <h2>
+            📝 Create Account
+        </h2>
+
+
+        {% if error %}
+
+        <div class="error-message">
+            ⚠️ {{ error }}
+        </div>
+
+        {% endif %}
+
+
+        <form
+            action="{{ url_for('register') }}"
+            method="POST"
+        >
+
+
+            <!-- ACCOUNT DETAILS -->
+
+            <div class="section-title">
+                👤 Account Details
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="username">
+                    Username
+                </label>
+
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Choose a username"
+                    required
+                    minlength="3"
+                    autocomplete="username"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Create a password"
+                    required
+                    minlength="4"
+                    autocomplete="new-password"
+                >
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="confirm_password">
+                    Confirm Password
+                </label>
+
+                <input
+                    type="password"
+                    id="confirm_password"
+                    name="confirm_password"
+                    placeholder="Re-enter your password"
+                    required
+                    minlength="4"
+                    autocomplete="new-password"
+                >
+
+            </div>
+
+
+            <!-- PARENT DETAILS -->
+
+            <div class="section-title">
+                👨‍👩‍👧 Emergency Parent Contacts
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="parent1_phone">
+                    📞 Parent 1 Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="parent1_phone"
+                    name="parent1_phone"
+                    placeholder="e.g. 9876543210"
+                    required
+                    minlength="10"
+                    maxlength="16"
+                    autocomplete="tel"
+                >
+
+                <div class="phone-help">
+                    Enter a valid 10–15 digit phone number.
+                </div>
+
+            </div>
+
+
+            <div class="input-group">
+
+                <label for="parent2_phone">
+                    📞 Parent 2 Phone Number
+                </label>
+
+                <input
+                    type="tel"
+                    id="parent2_phone"
+                    name="parent2_phone"
+                    placeholder="e.g. 9876543210"
+                    required
+                    minlength="10"
+                    maxlength="16"
+                    autocomplete="tel"
+                >
+
+                <div class="phone-help">
+                    A second emergency contact for additional support.
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="register-btn"
+            >
+                ✅ Create SafeRailAI Account
+            </button>
+
+        </form>
+
+
+        <div class="login-link">
+
+            Already have an account?
+
+            <a href="{{ url_for('login') }}">
+                Login here
+            </a>
+
+        </div>
+
+
+        <div class="security">
+
+            🛡️ Password is securely hashed.
+            <br>
+            📱 Emergency contacts are visible only
+            to the logged-in account.
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

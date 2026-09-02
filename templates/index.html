@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SafeRailAI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fc;
+        }
+
+        .home-container {
+            text-align: center;
+            padding-top: 100px;
+        }
+
+        .logo {
+            font-size: 45px;
+            font-weight: bold;
+            color: #003366;
+        }
+
+        .subtitle {
+            font-size: 22px;
+            color: #555;
+            margin: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 14px 30px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="home-container">
+
+        <div class="logo">
+            🚆 SafeRailAI
+        </div>
+
+        <div class="subtitle">
+            AI Powered Railway Safety Monitoring System
+        </div>
+
+        <br>
+
+        <a href="{{ url_for('login') }}" class="btn">
+            🔐 Admin Login
+        </a>
+
+        <a href="{{ url_for('camera') }}" class="btn">
+            📷 Live Camera
+        </a>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,18 +1,27 @@
 import cv2
+from ultralytics import YOLO
 
+model = YOLO("yolov8n.pt")
 cap = cv2.VideoCapture(0)
 
-while True:
-    ret, frame = cap.read()
+def generate_frames():
+    while True:
+        success, frame = cap.read()
 
-    if not ret:
-        print("Camera open nahi hua!")
-        break
+        if not success:
+            break
 
-    cv2.imshow("SafeRail AI Camera", frame)
+        results = model(frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        frame = results[0].plot()
 
-cap.release()
-cv2.destroyAllWindows()
+        ret, buffer = cv2.imencode(".jpg", frame)
+
+        frame = buffer.tobytes()
+
+        yield (
+            b'--frame\r\n'
+            b'Content-Type: image/jpeg\r\n\r\n' +
+            frame +
+            b'\r\n'
+        )
