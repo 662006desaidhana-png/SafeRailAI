@@ -3,4 +3,4 @@ gunicorn
 opencv-python
 numpy
 ultralytics
-playsound==1.2.2
+
