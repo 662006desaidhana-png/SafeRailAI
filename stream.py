@@ -1,38 +1,90 @@
 import cv2
-import winsound
 import os
 import sqlite3
+import platform
 from datetime import datetime
 from ultralytics import YOLO
 
-# ==========================
-# YOLO MODEL
-# ==========================
-model = YOLO("yolov8n.pt")
+# Windows par local alarm support
+if platform.system() == "Windows":
+    import winsound
+else:
+    winsound = None
 
-# ==========================
-# CAMERA
-# ==========================
-camera = cv2.VideoCapture(0)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ==========================
-# INCIDENT FOLDER
-# ==========================
+DATABASE = os.path.join(BASE_DIR, "database.db")
+
 INCIDENT_FOLDER = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
+    BASE_DIR,
     "incidents"
 )
 
 os.makedirs(INCIDENT_FOLDER, exist_ok=True)
 
-# ==========================
-# ALARM STATUS
-# ==========================
+# Make sure incidents table exists
+def init_incidents_table():
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS incidents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL,
+            time TEXT NOT NULL,
+            object_name TEXT NOT NULL,
+            image TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+init_incidents_table()
+
+# Load YOLO model
+model = YOLO(
+    os.path.join(BASE_DIR, "yolov8n.pt")
+)
+
+# Camera
+camera = cv2.VideoCapture(0)
+
 alarm_playing = False
 
 
-def generate_frames():
+def play_alarm():
+    global alarm_playing
 
+    if platform.system() == "Windows" and winsound:
+        sound_file = os.path.join(
+            BASE_DIR,
+            "mixkit-sound-alert-in-hall-1006.wav"
+        )
+
+        if os.path.exists(sound_file):
+            winsound.PlaySound(
+                sound_file,
+                winsound.SND_FILENAME | winsound.SND_ASYNC
+            )
+
+    alarm_playing = True
+
+
+def stop_alarm():
+    global alarm_playing
+
+    if platform.system() == "Windows" and winsound:
+        winsound.PlaySound(
+            None,
+            winsound.SND_ASYNC
+        )
+
+    alarm_playing = False
+
+
+def generate_frames():
     global alarm_playing
 
     while True:
@@ -42,9 +94,6 @@ def generate_frames():
         if not success:
             break
 
-        # ==========================
-        # YOLO DETECTION
-        # ==========================
         results = model(frame)
 
         annotated_frame = results[0].plot()
@@ -52,25 +101,20 @@ def generate_frames():
         suspicious = False
         detected_object = None
 
-        # ==========================
-        # CHECK DETECTIONS
-        # ==========================
-        for r in results:
+        for result in results:
 
-            for box in r.boxes:
+            for box in result.boxes:
 
                 cls = int(box.cls[0])
 
                 label = model.names[cls].lower()
 
-                # Keep this for your existing detection classes
                 if label in ["knife", "scissors", "gun"]:
+
                     suspicious = True
                     detected_object = label
 
-        # ==========================
-        # AI MONITORING TEXT
-        # ==========================
+        # Monitoring status
         cv2.putText(
             annotated_frame,
             "AI Monitoring Active",
@@ -81,12 +125,9 @@ def generate_frames():
             2
         )
 
-        # ==========================
-        # WARNING
-        # ==========================
         if suspicious:
 
-            # RED BANNER
+            # Warning banner
             cv2.rectangle(
                 annotated_frame,
                 (0, 0),
@@ -105,10 +146,10 @@ def generate_frames():
                 2
             )
 
-            # ==========================
-            # SAVE IMAGE
-            # ==========================
-            filename = datetime.now().strftime(
+            # Save incident image
+            now = datetime.now()
+
+            filename = now.strftime(
                 "%Y-%m-%d_%H-%M-%S-%f.jpg"
             )
 
@@ -122,13 +163,12 @@ def generate_frames():
                 annotated_frame
             )
 
-            # ==========================
-            # SAVE DATABASE
-            # ==========================
-            date = datetime.now().strftime("%d-%m-%Y")
-            time = datetime.now().strftime("%H:%M:%S")
+            # Save incident in database
+            date = now.strftime("%d-%m-%Y")
+            time = now.strftime("%H:%M:%S")
 
-            conn = sqlite3.connect("database.db")
+            conn = sqlite3.connect(DATABASE)
+
             cursor = conn.cursor()
 
             cursor.execute(
@@ -148,37 +188,20 @@ def generate_frames():
             conn.commit()
             conn.close()
 
-            print("Incident saved:", filename)
+            print(
+                "Incident saved:",
+                filename
+            )
 
-            # ==========================
-            # ALARM
-            # ==========================
+            # Local alarm only works on Windows
             if not alarm_playing:
-
-                alarm_playing = True
-
-                sound_file = "mixkit-sound-alert-in-hall-1006.wav"
-
-                if os.path.exists(sound_file):
-
-                    winsound.PlaySound(
-                        sound_file,
-                        winsound.SND_FILENAME |
-                        winsound.SND_ASYNC
-                    )
+                play_alarm()
 
         else:
 
-            alarm_playing = False
+            stop_alarm()
 
-            winsound.PlaySound(
-                None,
-                winsound.SND_ASYNC
-            )
-
-        # ==========================
-        # CONVERT FRAME
-        # ==========================
+        # Encode frame
         ret, buffer = cv2.imencode(
             ".jpg",
             annotated_frame
@@ -189,9 +212,6 @@ def generate_frames():
 
         frame_bytes = buffer.tobytes()
 
-        # ==========================
-        # SEND VIDEO
-        # ==========================
         yield (
             b"--frame\r\n"
             b"Content-Type: image/jpeg\r\n\r\n"
