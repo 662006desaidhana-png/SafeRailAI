@@ -3,12 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>SafeRailAI - Live Camera</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
 
     <style>
 
@@ -31,10 +37,18 @@
         }
 
         .status {
-            background: #16803c;
+            background: #374151;
             padding: 12px;
             font-size: 18px;
             font-weight: bold;
+        }
+
+        .status.active {
+            background: #16803c;
+        }
+
+        .status.error {
+            background: #b91c1c;
         }
 
         .camera-box {
@@ -46,19 +60,61 @@
             border-radius: 12px;
         }
 
-        .camera-box img {
+        .camera-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .camera-box video {
             width: 100%;
             max-width: 960px;
             height: auto;
+            min-height: 250px;
             border: 4px solid white;
             border-radius: 10px;
             display: block;
             margin: auto;
+            background: #000;
+        }
+
+        .processed-title {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #processedFrame {
+            width: 100%;
+            max-width: 960px;
+            height: auto;
+            border: 4px solid #22c55e;
+            border-radius: 10px;
+            display: none;
+            margin: 10px auto;
+            background: #000;
         }
 
         .info {
             margin: 15px;
             font-size: 16px;
+        }
+
+        .message {
+            margin: 15px auto;
+            width: 90%;
+            max-width: 800px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #374151;
+        }
+
+        .warning {
+            background: #b91c1c;
+        }
+
+        .success {
+            background: #166534;
         }
 
         .btn {
@@ -78,6 +134,14 @@
             background: #0D47A1;
         }
 
+        .stop-btn {
+            background: #dc2626;
+        }
+
+        .stop-btn:hover {
+            background: #991b1b;
+        }
+
         .report-btn {
             background: #555;
         }
@@ -86,41 +150,689 @@
             background: #333;
         }
 
+        .hidden-canvas {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .camera-box {
+                width: 92%;
+                padding: 8px;
+            }
+
+            .camera-box video,
+            #processedFrame {
+                width: 100%;
+            }
+
+            .btn {
+                width: 80%;
+                max-width: 300px;
+            }
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
     <div class="header">
-        <h1>🚆 SafeRailAI Live Monitoring</h1>
+
+        <h1>
+            🚆 SafeRailAI Live Monitoring
+        </h1>
+
     </div>
 
-    <div class="status">
-        🟢 AI Monitoring Active
+
+    <div
+        class="status"
+        id="statusBar"
+    >
+        ⚪ Camera Ready
     </div>
+
 
     <div class="camera-box">
 
+        <div class="camera-title">
+            📷 Live Browser Camera
+        </div>
+
+        <video
+            id="camera"
+            autoplay
+            playsinline
+            muted
+        ></video>
+
+        <div
+            class="processed-title"
+            id="processedTitle"
+            style="display:none;"
+        >
+            🤖 YOLO AI Processed Feed
+        </div>
+
         <img
-            src="{{ url_for('video_feed') }}"
-            alt="Live AI Camera Feed"
+            id="processedFrame"
+            alt="AI Processed Camera Feed"
         >
 
     </div>
 
-    <div class="info">
-        🤖 YOLO AI Detection &nbsp; | &nbsp;
-        📷 Live Camera &nbsp; | &nbsp;
-        🚨 Automatic Alert
+
+    <canvas
+        id="canvas"
+        class="hidden-canvas"
+    ></canvas>
+
+
+    <div
+        id="message"
+        class="message"
+    >
+        Click <b>Start Camera</b> and allow camera permission.
     </div>
 
-    <a href="/report" class="btn report-btn">
+
+    <div class="info">
+
+        🤖 YOLO AI Detection
+        &nbsp; | &nbsp;
+        📷 Browser Camera
+        &nbsp; | &nbsp;
+        🚨 Automatic Alert
+
+    </div>
+
+
+    <button
+        id="startButton"
+        class="btn"
+        onclick="startCamera()"
+    >
+        📷 Start Camera
+    </button>
+
+
+    <button
+        id="stopButton"
+        class="btn stop-btn"
+        onclick="stopCamera()"
+        style="display:none;"
+    >
+        ⏹ Stop Camera
+    </button>
+
+
+    <br>
+
+
+    <a
+        href="/report"
+        class="btn report-btn"
+    >
         📋 View Reports
     </a>
 
-    <a href="/dashboard" class="btn">
+
+    <a
+        href="/dashboard"
+        class="btn"
+    >
         ⬅ Back to Dashboard
     </a>
+
+
+<script>
+
+const video =
+    document.getElementById("camera");
+
+const canvas =
+    document.getElementById("canvas");
+
+const processedFrame =
+    document.getElementById("processedFrame");
+
+const processedTitle =
+    document.getElementById("processedTitle");
+
+const statusBar =
+    document.getElementById("statusBar");
+
+const message =
+    document.getElementById("message");
+
+const startButton =
+    document.getElementById("startButton");
+
+const stopButton =
+    document.getElementById("stopButton");
+
+
+let stream = null;
+
+let detectionTimer = null;
+
+let processing = false;
+
+
+/* =========================
+   START CAMERA
+========================= */
+
+async function startCamera() {
+
+    try {
+
+        if (!navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia) {
+
+            throw new Error(
+                "Camera API is not supported by this browser."
+            );
+        }
+
+
+        if (!window.isSecureContext) {
+
+            throw new Error(
+                "Camera requires HTTPS."
+            );
+        }
+
+
+        if (stream) {
+            stopCamera();
+        }
+
+
+        /*
+         * First try the mobile rear camera.
+         */
+
+        try {
+
+            stream =
+                await navigator.mediaDevices.getUserMedia({
+
+                    video: {
+                        facingMode: {
+                            ideal: "environment"
+                        },
+
+                        width: {
+                            ideal: 1280
+                        },
+
+                        height: {
+                            ideal: 720
+                        }
+                    },
+
+                    audio: false
+
+                });
+
+        }
+
+        catch (firstError) {
+
+            console.log(
+                "Environment camera failed. Trying default camera.",
+                firstError
+            );
+
+
+            /*
+             * Fallback for PC/laptop cameras.
+             */
+
+            stream =
+                await navigator.mediaDevices.getUserMedia({
+
+                    video: true,
+
+                    audio: false
+
+                });
+
+        }
+
+
+        video.srcObject = stream;
+
+
+        await video.play();
+
+
+        statusBar.innerText =
+            "🟢 Camera Active";
+
+        statusBar.className =
+            "status active";
+
+
+        message.innerText =
+            "🤖 AI monitoring is active. Camera is connected.";
+
+        message.className =
+            "message success";
+
+
+        startButton.style.display =
+            "none";
+
+
+        stopButton.style.display =
+            "inline-block";
+
+
+        processedTitle.style.display =
+            "block";
+
+
+        startDetection();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Camera error:",
+            error
+        );
+
+
+        statusBar.innerText =
+            "🔴 Camera Access Failed";
+
+        statusBar.className =
+            "status error";
+
+
+        let errorMessage =
+            "Unable to access camera.";
+
+
+        if (error.name === "NotAllowedError") {
+
+            errorMessage =
+                "❌ Camera permission was denied. Please allow camera access in your browser settings and try again.";
+
+        }
+
+        else if (error.name === "NotFoundError") {
+
+            errorMessage =
+                "❌ No camera was found on this device.";
+
+        }
+
+        else if (error.name === "NotReadableError") {
+
+            errorMessage =
+                "❌ Camera is already being used by another application.";
+
+        }
+
+        else if (error.name === "OverconstrainedError") {
+
+            errorMessage =
+                "❌ Selected camera mode is unavailable. Please try again.";
+
+        }
+
+        else {
+
+            errorMessage =
+                "❌ " + error.message;
+        }
+
+
+        message.innerText =
+            errorMessage;
+
+        message.className =
+            "message warning";
+
+
+        startButton.style.display =
+            "inline-block";
+
+
+        stopButton.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================
+   STOP CAMERA
+========================= */
+
+function stopCamera() {
+
+    if (detectionTimer) {
+
+        clearInterval(
+            detectionTimer
+        );
+
+        detectionTimer = null;
+
+    }
+
+
+    if (stream) {
+
+        stream
+            .getTracks()
+            .forEach(
+                track => track.stop()
+            );
+
+        stream = null;
+
+    }
+
+
+    video.srcObject = null;
+
+
+    processedFrame.src = "";
+
+    processedFrame.style.display =
+        "none";
+
+
+    processedTitle.style.display =
+        "none";
+
+
+    processing = false;
+
+
+    statusBar.innerText =
+        "⚪ Camera Stopped";
+
+    statusBar.className =
+        "status";
+
+
+    message.innerText =
+        "Camera monitoring stopped.";
+
+    message.className =
+        "message";
+
+
+    startButton.style.display =
+        "inline-block";
+
+
+    stopButton.style.display =
+        "none";
+
+}
+
+
+/* =========================
+   START YOLO DETECTION
+========================= */
+
+function startDetection() {
+
+    if (detectionTimer) {
+
+        clearInterval(
+            detectionTimer
+        );
+
+    }
+
+
+    /*
+     * Wait 1.5 seconds before first request.
+     */
+
+    setTimeout(
+        sendFrameForDetection,
+        1500
+    );
+
+
+    /*
+     * Send one frame every 2 seconds.
+     */
+
+    detectionTimer =
+        setInterval(
+            sendFrameForDetection,
+            2000
+        );
+
+}
+
+
+/* =========================
+   SEND FRAME TO YOLO
+========================= */
+
+async function sendFrameForDetection() {
+
+    if (!stream) {
+        return;
+    }
+
+
+    if (processing) {
+        return;
+    }
+
+
+    if (video.readyState < 2) {
+        return;
+    }
+
+
+    if (
+        video.videoWidth === 0 ||
+        video.videoHeight === 0
+    ) {
+        return;
+    }
+
+
+    processing = true;
+
+
+    try {
+
+        canvas.width =
+            video.videoWidth;
+
+        canvas.height =
+            video.videoHeight;
+
+
+        const context =
+            canvas.getContext("2d");
+
+
+        context.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        const blob =
+            await new Promise(
+                resolve =>
+                    canvas.toBlob(
+                        resolve,
+                        "image/jpeg",
+                        0.70
+                    )
+            );
+
+
+        if (!blob) {
+
+            throw new Error(
+                "Could not create camera frame."
+            );
+
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "frame",
+            blob,
+            "camera.jpg"
+        );
+
+
+        const response =
+            await fetch(
+                "{{ url_for('detect_frame') }}",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        if (!response.ok) {
+
+            if (response.status === 401) {
+
+                throw new Error(
+                    "Login session expired. Please login again."
+                );
+
+            }
+
+            throw new Error(
+                "AI server returned HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const resultBlob =
+            await response.blob();
+
+
+        if (!resultBlob ||
+            resultBlob.size === 0) {
+
+            throw new Error(
+                "Empty AI response received."
+            );
+
+        }
+
+
+        const imageUrl =
+            URL.createObjectURL(
+                resultBlob
+            );
+
+
+        processedFrame.onload =
+            function() {
+
+                URL.revokeObjectURL(
+                    imageUrl
+                );
+
+            };
+
+
+        processedFrame.src =
+            imageUrl;
+
+
+        processedFrame.style.display =
+            "block";
+
+
+        /*
+         * IMPORTANT:
+         * Do NOT hide the original camera.
+         */
+
+        video.style.display =
+            "block";
+
+
+        message.innerText =
+            "🟢 AI detection running successfully.";
+
+        message.className =
+            "message success";
+
+    }
+
+
+    catch (error) {
+
+        console.error(
+            "Detection error:",
+            error
+        );
+
+
+        message.innerText =
+            "📷 Camera is active. AI processing: " +
+            error.message;
+
+        message.className =
+            "message warning";
+
+    }
+
+
+    processing = false;
+
+}
+
+
+/* =========================
+   PAGE CLEANUP
+========================= */
+
+window.addEventListener(
+    "beforeunload",
+    function() {
+
+        stopCamera();
+
+    }
+);
+
+</script>
+
 
 </body>
 
